@@ -64,10 +64,7 @@ const updatePassword = async () => {
     return
   }
   try {
-    await userApi.changePassword({
-      currentPassword: passwordForm.value.currentPassword,
-      newPassword: passwordForm.value.newPassword
-    })
+    await userApi.changePassword(passwordForm.value.newPassword);
     successMessage.value = '비밀번호가 성공적으로 변경되었습니다.'
     passwordForm.value = {
       currentPassword: '',

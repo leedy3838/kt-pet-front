@@ -73,11 +73,10 @@ export const userApi = {
     })
   },
 
-  // 비밀번호 변경 (수정된 부분)
-  changePassword: (passwordData) => {
+  // 비밀번호 변경
+  changePassword: (newPassword) => {
     return api.put('/users/reset-password', {
-      currentPassword: passwordData.currentPassword,
-      newPassword: passwordData.newPassword
+      password: newPassword
     })
   },
 

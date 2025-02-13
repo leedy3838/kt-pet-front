@@ -127,10 +127,7 @@ const changePassword = async () => {
     return;
   }
   try {
-    await userApi.changePassword({
-      currentPassword: '',
-      newPassword: newPassword.value
-    });
+    await userApi.changePassword(newPassword.value);
     alert('비밀번호가 변경되었습니다.');
     showChangePasswordModal.value = false;
     newPassword.value = '';
