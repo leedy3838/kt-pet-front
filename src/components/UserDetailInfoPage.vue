@@ -37,20 +37,55 @@
             </label>
             <p class="info-value">{{ user.phone }}</p>
           </div>
+        </div>
 
-          <div class="button-group">
-            <button @click="goToUpdate" class="primary-button">
-              <Edit class="icon" />
-              정보 수정
-            </button>
-            <button @click="showChangePasswordModal = true" class="secondary-button">
-              <Lock class="icon" />
-              비밀번호 변경
-            </button>
-            <button @click="handleWithdraw" class="delete-button">
-              회원 탈퇴
-            </button>
+        <div v-if="petsitterStatus.exists && petsitterProfile" class="profile-section">
+          <h2 class="section-title">펫시터 정보</h2>
+          
+          <div class="info-group">
+            <label class="info-label">활동 가능 지역</label>
+            <p class="info-value">{{ petsitterProfile.region }}</p>
           </div>
+
+          <div class="info-group">
+            <label class="info-label">활동 가능 시간</label>
+            <p class="info-value">{{ petsitterProfile.availableStartTime }} ~ {{ petsitterProfile.availableEndTime }}</p>
+          </div>
+
+          <div class="info-group">
+            <label class="info-label">돌봄 가능한 반려동물</label>
+            <p class="info-value">{{ petsitterProfile.petTypes.join(', ') }}</p>
+          </div>
+
+          <div class="info-group">
+            <label class="info-label">시간당 요금</label>
+            <p class="info-value">{{ petsitterProfile.price }}원</p>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button @click="goToUpdate" class="primary-button">
+            <Edit class="icon" />
+            정보 수정
+          </button>
+          <button @click="showChangePasswordModal = true" class="secondary-button">
+            <Lock class="icon" />
+            비밀번호 변경
+          </button>
+          <button v-if="!petsitterStatus.exists" @click="applyPetsitter" class="primary-button">
+            <User class="icon" />
+            펫시터 신청
+          </button>
+          <button v-else @click="goToPetsitterProfile" class="primary-button">
+            <User class="icon" />
+            펫시터 프로필 수정
+          </button>
+          <button @click="handleWithdraw" class="delete-button">
+            회원 탈퇴
+          </button>
+          <button @click="goToReservationManage" class="primary-button">
+            예약 관리
+          </button>
         </div>
       </div>
     </main>
@@ -84,7 +119,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { User, Mail, Phone, Lock, Edit } from 'lucide-vue-next';
-import { userApi } from '@/services/api';
+import { userApi, petsitterApi } from '@/services/api';
 
 const router = useRouter();
 
@@ -97,19 +132,35 @@ const user = ref({
 const showChangePasswordModal = ref(false);
 const newPassword = ref('');
 const confirmPassword = ref('');
+const petsitterStatus = ref({
+  exists: false,
+  isActivated: false
+});
+
+const petsitterProfile = ref(null);
 
 onMounted(async () => {
   try {
-    const response = await userApi.getUserInfo();
+    const userResponse = await userApi.getUserInfo();
     user.value = {
-      ...response.data,
-      phone: response.data.phoneNumber
+      ...userResponse.data,
+      phone: userResponse.data.phoneNumber
     };
+
+    const petsitterResponse = await petsitterApi.checkPetsitterStatus();
+    petsitterStatus.value = petsitterResponse.data;
+
+    if (petsitterStatus.value.exists) {
+      const profileResponse = await petsitterApi.getMyProfile();
+      petsitterProfile.value = {
+        ...profileResponse.data,
+      };
+    }
   } catch (error) {
     if (error.response?.status === 401) {
       router.push('/login');
     }
-    console.error('사용자 정보 조회 실패:', error);
+    console.error('정보 조회 실패:', error);
   }
 });
 
@@ -147,6 +198,25 @@ const handleWithdraw = async () => {
     }
   }
 };
+
+const applyPetsitter = async () => {
+  try {
+    await petsitterApi.applyPetsitter()
+    alert('펫시터 신청이 완료되었습니다!')
+    router.push('/petsitter/profile')
+  } catch (error) {
+    console.error('펫시터 신청 실패:', error)
+    alert('펫시터 신청에 실패했습니다.')
+  }
+}
+
+const goToPetsitterProfile = () => {
+  router.push('/petsitter/profile');
+};
+
+const goToReservationManage = () => {
+  router.push('/reservations/manage')
+}
 </script>
 
 <style scoped>
@@ -229,5 +299,16 @@ const handleWithdraw = async () => {
 .delete-button:hover {
   background-color: #dc2626;
   transform: translateY(-1px);
+}
+
+.profile-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 </style>

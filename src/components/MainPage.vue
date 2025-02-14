@@ -34,9 +34,15 @@
         <div class="section-container">
           <h2 class="section-title">우리의 서비스</h2>
           <div class="services-grid">
-            <div v-for="service in services" :key="service.title" class="service-card">
+            <div 
+              v-for="service in services" 
+              :key="service.title" 
+              class="service-card"
+              @click="goToService(service.path)"
+            >
               <component :is="service.icon" class="service-icon" />
               <h3>{{ service.title }}</h3>
+              <p class="service-description">{{ service.description }}</p>
             </div>
           </div>
         </div>
@@ -79,8 +85,18 @@ const promotionItems = ref([
 ])
 
 const services = ref([
-  { title: '펫시터 서비스', icon: User },
-  { title: '쇼핑몰 서비스', icon: ShoppingBag }
+  { 
+    title: '펫시터 서비스', 
+    icon: User, 
+    path: '/petsitters',
+    description: '전문 펫시터가 제공하는 맞춤형 돌봄 서비스를 만나보세요.'
+  },
+  { 
+    title: '쇼핑몰 서비스', 
+    icon: ShoppingBag, 
+    path: '/shop',
+    description: '반려동물을 위한 다양한 상품을 만나보세요.'
+  }
 ])
 
 // 로그인 상태 확인 및 사용자 정보 가져오기
@@ -118,6 +134,10 @@ const handleLogout = async () => {
   } catch (error) {
     console.error('로그아웃 실패:', error)
   }
+}
+
+const goToService = (path) => {
+  router.push(path)
 }
 </script>
 
@@ -241,5 +261,15 @@ const handleLogout = async () => {
     margin-right: 0;
     margin-bottom: 0.5rem;
   }
+}
+
+.service-description {
+  margin-top: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.service-card {
+  cursor: pointer;
 }
 </style>

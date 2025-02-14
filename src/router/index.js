@@ -5,6 +5,10 @@ import LoginPage from '../components/LoginPage.vue'; // 로그인인 페이지
 import UserDetailInfoPage from '../components/UserDetailInfoPage.vue'; // 상세정보 페이지
 import UserInfoUpdatePage from '../components/UserInfoUpdatePage.vue'; // 회원정보 수정 페이지
 import WithdrawPage from '../components/WithdrawPage.vue'; // 회원탈퇴 페이지
+import PetsitterProfilePage from '@/components/PetsitterProfilePage.vue'
+import PetsitterListPage from '@/components/PetsitterListPage.vue'
+import PetsitterDetailPage from '@/components/PetsitterDetailPage.vue'
+import ReservationManagePage from '@/components/ReservationManagePage.vue'
 
 const routes = [
   {
@@ -41,6 +45,26 @@ const routes = [
     path: '/users/withdraw',
     name: 'WithdrawPage',
     component: WithdrawPage
+  },
+  {
+    path: '/petsitter/profile',
+    name: 'PetsitterProfile',
+    component: PetsitterProfilePage
+  },
+  {
+    path: '/petsitters',
+    name: 'PetsitterList',
+    component: PetsitterListPage
+  },
+  {
+    path: '/petsitter/:id',
+    name: 'PetsitterDetail',
+    component: PetsitterDetailPage
+  },
+  {
+    path: '/reservations/manage',
+    name: 'ReservationManage',
+    component: ReservationManagePage
   }
 ];
 
