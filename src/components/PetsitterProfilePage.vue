@@ -211,7 +211,7 @@ const goHome = () => {
 
 <style scoped>
 .profile-form {
-  margin-top: 2rem;
+  margin-top: var(--spacing-lg);
 }
 
 .form-input {
@@ -233,35 +233,48 @@ textarea.form-input {
 
 .checkbox-group {
   display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
   cursor: pointer;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-secondary);
+  transition: all 0.2s ease;
+}
+
+.checkbox-label:hover {
+  background-color: var(--border-color);
 }
 
 .button-group {
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
 }
 
 .delete-button {
-  background-color: #ef4444;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  background-color: var(--error-bg);
+  color: var(--error-text);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: all 0.2s ease;
 }
 
 .delete-button:hover {
-  background-color: #dc2626;
+  background-color: var(--error-text);
+  color: white;
 }
 
 .alert {
@@ -290,6 +303,6 @@ textarea.form-input {
 .time-inputs {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--spacing-sm);
 }
 </style> 
