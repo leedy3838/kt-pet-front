@@ -119,9 +119,10 @@ export const petsitterApi = {
     return api.get('/pet-sitters/profile/exists')
   },
 
-  // 펫시터 프로필 조회
-  getMyProfile: () => {
-    return api.get('/pet-sitters/profile')
+  // 펫시터 프로필 조회 (자신의 프로필 또는 특정 펫시터의 프로필)
+  getProfile: (petsitterId = null) => {
+    const params = petsitterId ? { petSitterId: petsitterId } : {}
+    return api.get('/pet-sitters/profile', { params })
   },
 
   // 모든 펫시터 목록 조회
@@ -137,11 +138,6 @@ export const petsitterApi = {
   // 펫시터 탈퇴
   quitPetsitter: () => {
     return api.delete('/pet-sitters')
-  },
-
-  // 특정 펫시터 프로필 조회
-  getPetsitterProfile: (petsitterId) => {
-    return api.get(`/pet-sitters/profile/${petsitterId}`)
   }
 }
 

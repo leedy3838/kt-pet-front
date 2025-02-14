@@ -109,7 +109,7 @@ import { Save, X } from 'lucide-vue-next'
 import { petsitterApi, petTypeApi } from '@/services/api'
 
 const router = useRouter()
-const isNewProfile = ref(true) // 신규 프로필 여부
+const isNewProfile = ref(true)
 const profile = ref({
   location: '',
   availableStartTime: '',
@@ -121,9 +121,8 @@ const profile = ref({
 
 const successMessage = ref('')
 const errorMessage = ref('')
-
-// 반려동물 타입 목록 조회
 const petTypes = ref([])
+
 const fetchPetTypes = async () => {
   try {
     const response = await petTypeApi.getAllPetTypes()
@@ -133,18 +132,18 @@ const fetchPetTypes = async () => {
   }
 }
 
-onMounted(async () => {
+const fetchProfile = async () => {
   try {
-    await fetchPetTypes() // 먼저 반려동물 타입 목록을 가져옴
-
     // 프로필 존재 여부 확인
     const existsResponse = await petsitterApi.hasProfile()
     isNewProfile.value = !existsResponse.data
 
     if (!isNewProfile.value) {
-      // 기존 프로필이 있는 경우 데이터 로드
-      const response = await petsitterApi.getMyProfile()
+      // 기존 프로필이 있는 경우 자신의 프로필 조회
+      const response = await petsitterApi.getProfile()
       const profileData = response.data
+      console.log('조회된 프로필 데이터:', profileData)
+
       profile.value = {
         location: profileData.region,
         availableStartTime: profileData.availableStartTime,
@@ -154,30 +153,39 @@ onMounted(async () => {
       }
     }
   } catch (error) {
+    console.error('프로필 조회 실패:', error)
     if (error.response?.status === 401) {
       router.push('/login')
     }
     errorMessage.value = '프로필 정보 조회에 실패했습니다.'
+  }
+}
+
+onMounted(async () => {
+  try {
+    await fetchPetTypes()  // 반려동물 타입 목록 조회
+    await fetchProfile()   // 프로필 정보 조회
+  } catch (error) {
+    console.error('초기 데이터 로딩 실패:', error)
   }
 })
 
 const saveProfile = async () => {
   try {
     if (isNewProfile.value) {
-      // 신규 등록
       await petsitterApi.createProfile(profile.value)
       successMessage.value = '프로필이 성공적으로 등록되었습니다.'
     } else {
-      // 수정
-      await petsitterApi.updateProfile(profile.value)
+      await petsitterApi.updateProfile(profile.value)  // id 제거
       successMessage.value = '프로필이 성공적으로 수정되었습니다.'
     }
     
-    isNewProfile.value = false // 저장 후에는 더 이상 신규가 아님
+    isNewProfile.value = false
     setTimeout(() => {
       successMessage.value = ''
     }, 3000)
   } catch (error) {
+    console.error('프로필 저장 실패:', error)
     errorMessage.value = isNewProfile.value 
       ? '프로필 등록에 실패했습니다.' 
       : '프로필 수정에 실패했습니다.'

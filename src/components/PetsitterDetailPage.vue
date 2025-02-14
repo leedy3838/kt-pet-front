@@ -128,13 +128,9 @@ const isValidReservation = computed(() => {
 
 onMounted(async () => {
   try {
-    const response = await petsitterApi.getPetsitterProfile(route.params.id)
+    const response = await petsitterApi.getProfile(route.params.id)
     console.log('펫시터 정보:', response.data)
-    
-    petsitter.value = {
-      ...response.data,
-      petTypes: response.data.petTypes || []
-    }
+    petsitter.value = response.data
   } catch (error) {
     console.error('펫시터 정보 조회 실패:', error)
     alert('펫시터 정보를 불러오는데 실패했습니다.')
