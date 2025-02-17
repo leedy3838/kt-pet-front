@@ -40,6 +40,7 @@
             <h3>예약자: {{ reservation.userName }}</h3>
             <p class="time">시간: {{ reservation.startTime }} ~ {{ reservation.endTime }}</p>
             <p class="status">상태: {{ getStatusText(reservation.status) }}</p>
+            <p class="price">가격: {{ reservation.price }}원</p>
           </div>
           
           <div v-if="reservation.status === 'PENDING'" class="button-group">
@@ -196,6 +197,11 @@ onMounted(fetchReservations)
 }
 
 .date, .time, .status {
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.price {
   color: var(--text-secondary);
   margin-bottom: 0.5rem;
 }

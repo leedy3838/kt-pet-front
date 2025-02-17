@@ -21,6 +21,7 @@
             <p>예약 시간: {{ formatDate(reservation.startTime) }} ~ {{ formatDate(reservation.endTime) }}</p>
             <p>상태: {{ reservation.status }}</p>
             <p>메시지: {{ reservation.message }}</p>
+            <p>가격: {{ reservation.price }}원</p>
             <button 
               v-if="reservation.status === 'PENDING'" 
               @click="cancelReservation(reservation.id)" 
@@ -29,6 +30,13 @@
               예약 취소
             </button>
             <p v-if="reservation.status === 'REJECTED'" class="rejected-text">예약이 거부되었습니다.</p>
+            <button 
+              v-if="reservation.status === 'ACCEPTED'" 
+              @click="onPayment(reservation)" 
+              class="payment-button"
+            >
+              결제하기
+            </button>
           </div>
         </div>
       </div>
@@ -73,6 +81,37 @@ const cancelReservation = async (reservationId) => {
   } catch (error) {
     console.error('예약 취소 실패:', error);
     alert('예약 취소에 실패했습니다. 다시 시도해주세요.');
+  }
+};
+
+const onPayment = (reservation) => {
+  const { IMP } = window;
+  IMP.init('imp36277135'); // Use the provided merchant identifier
+
+  const data = {
+    pg: 'uplus', // Use the registered PG channel
+    pay_method: 'card', // Payment method
+    merchant_uid: `mid_${new Date().getTime()}`, // Order number
+    amount: reservation.price, // Use the price from the reservation
+    name: '펫시터 예약 결제', // Order name
+    buyer_name: '홍길동', // Buyer name
+    buyer_tel: '01012341234', // Buyer phone number
+    buyer_email: 'baroq8@gmail.com', // Buyer email
+    buyer_addr: '신사동 661-16', // Buyer address
+    buyer_postcode: '06018' // Buyer postal code
+  };
+
+  IMP.request_pay(data, callback);
+};
+
+const callback = (response) => {
+  const { success, error_msg } = response;
+  console.log(response);
+  if (success) {
+    alert('결제 성공');
+    // Optionally, you can update the reservation status here
+  } else {
+    alert(`결제 실패: ${error_msg}`);
   }
 };
 
@@ -122,5 +161,17 @@ const goHome = () => {
 .rejected-text {
   color: var(--text-secondary);
   margin-top: 0.5rem;
+}
+.payment-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.payment-button:hover {
+  background-color: var(--primary-color-dark);
 }
 </style> 

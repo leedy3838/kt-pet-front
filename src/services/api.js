@@ -190,31 +190,31 @@ export const petTypeApi = {
 export const reservationApi = {
   // 대기중인 예약 목록 조회
   getPendingReservations: () => {
-    return api.get('/reservations/pending')
+    return api.get('/reservations/pending');
   },
 
   // 모든 예약 목록 조회
   getAllReservations: () => {
-    return api.get('/reservations')
+    return api.get('/reservations');
   },
 
   // 예약 수락
   acceptReservation: (reservationId) => {
-    return api.post(`/reservations/${reservationId}/accept`)
+    return api.post(`/reservations/${reservationId}/accept`);
   },
 
   // 예약 거절
   rejectReservation: (reservationId) => {
-    return api.post(`/reservations/${reservationId}/reject`)
+    return api.post(`/reservations/${reservationId}/reject`);
   },
 
-  // 예약 요청
+  // 예약 요청 (update the endpoint here)
   createReservation: (reservationData) => {
-    return api.post('/reservations/request', reservationData, {
+    return api.post('/reservations', reservationData, { // Changed from '/reservations/request' to '/reservations'
       headers: {
         'Content-Type': 'application/json'
       }
-    })
+    });
   },
 
   getUserReservations: () => {
