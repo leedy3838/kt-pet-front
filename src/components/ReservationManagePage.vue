@@ -55,12 +55,6 @@
             >
               거절
             </button>
-            <button 
-              @click="openDatePicker(reservation)" 
-              class="edit-button"
-            >
-              날짜 변경
-            </button>
           </div>
         </div>
       </div>
@@ -137,11 +131,6 @@ const getStatusText = (status) => {
 
 const goHome = () => {
   router.push('/')
-}
-
-const openDatePicker = (reservation) => {
-  selectedReservation.value = reservation
-  showDatePicker.value = true
 }
 
 const updateReservationDate = async () => {

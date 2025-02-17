@@ -21,6 +21,14 @@
             <p>예약 시간: {{ formatDate(reservation.startTime) }} ~ {{ formatDate(reservation.endTime) }}</p>
             <p>상태: {{ reservation.status }}</p>
             <p>메시지: {{ reservation.message }}</p>
+            <button 
+              v-if="reservation.status === 'PENDING'" 
+              @click="cancelReservation(reservation.id)" 
+              class="cancel-button"
+            >
+              예약 취소
+            </button>
+            <p v-if="reservation.status === 'REJECTED'" class="rejected-text">예약이 거부되었습니다.</p>
           </div>
         </div>
       </div>
@@ -54,6 +62,20 @@ const formatDate = (dateTime) => {
   return new Date(dateTime).toLocaleString();
 };
 
+const cancelReservation = async (reservationId) => {
+  const confirmCancel = confirm('정말로 이 예약을 취소하시겠습니까?');
+  if (!confirmCancel) return;
+
+  try {
+    await reservationApi.rejectReservation(reservationId);
+    alert('예약이 취소되었습니다.');
+    await fetchUserReservations(); // Refresh the reservation list
+  } catch (error) {
+    console.error('예약 취소 실패:', error);
+    alert('예약 취소에 실패했습니다. 다시 시도해주세요.');
+  }
+};
+
 onMounted(fetchUserReservations);
 
 const goHome = () => {
@@ -84,5 +106,21 @@ const goHome = () => {
 .loading {
   text-align: center;
   padding: 2rem;
+}
+.cancel-button {
+  background-color: var(--error-bg);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.cancel-button:hover {
+  background-color: var(--error-bg-dark);
+}
+.rejected-text {
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
 }
 </style> 
