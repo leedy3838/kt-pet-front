@@ -216,4 +216,17 @@ export const reservationApi = {
       }
     })
   }
+}
+
+// adminApi 추가
+export const adminApi = {
+  // 펫시터 신청 목록 조회
+  getPendingPetSitters: () => {
+    return api.get('/admin/pet-sitters/pending')
+  },
+
+  // 펫시터 신청 승인
+  approvePetSitter: (petSitterId) => {
+    return api.post(`/admin/pet-sitters/${petSitterId}/approve`)
+  }
 } 

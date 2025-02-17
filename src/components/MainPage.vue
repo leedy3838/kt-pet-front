@@ -163,7 +163,7 @@ const goToService = (path) => {
 }
 
 const goToAdmin = () => {
-  router.push('/admin/pet-types')
+  router.push('/admin/pet-sitters')
 }
 </script>
 

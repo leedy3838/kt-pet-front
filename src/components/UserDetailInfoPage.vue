@@ -63,10 +63,10 @@
           <div class="info-group">
             <label class="info-label">돌봄 가능한 반려동물</label>
             <div class="pet-types">
-              <span v-for="type in petsitterProfile.petTypes" 
-                    :key="type.id" 
+              <span v-for="type in petsitterProfile.availablePetTypes" 
+                    :key="type" 
                     class="pet-type-tag">
-                {{ type.typeName || type.name || type }}
+                {{ type }}
               </span>
             </div>
           </div>
@@ -173,16 +173,19 @@ const loadUserInfo = async () => {
 const checkPetsitterStatus = async () => {
   try {
     const statusResponse = await petsitterApi.checkStatus()
-    petsitterStatus.value = statusResponse.data
+    petsitterStatus.value = {
+      exists: statusResponse.data.exists,
+      isActivated: statusResponse.data.isActivated,
+      petSitterId: statusResponse.data.petSitterId
+    }
     
     if (petsitterStatus.value.exists) {
       const profileResponse = await petsitterApi.getProfile()
-      console.log('Petsitter Profile:', profileResponse.data)
       petsitterProfile.value = {
         ...profileResponse.data,
-        petTypes: Array.isArray(profileResponse.data.petTypes) 
-          ? profileResponse.data.petTypes 
-          : [profileResponse.data.petTypes]
+        region: statusResponse.data.region,
+        price: statusResponse.data.price,
+        availablePetTypes: statusResponse.data.availablePetTypes
       }
     }
   } catch (error) {

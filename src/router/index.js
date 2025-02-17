@@ -10,6 +10,7 @@ import PetsitterListPage from '@/components/PetsitterListPage.vue'
 import PetsitterDetailPage from '@/components/PetsitterDetailPage.vue'
 import ReservationManagePage from '@/components/ReservationManagePage.vue'
 import PetTypeManagePage from '@/components/admin/PetTypeManagePage.vue'
+import PetSitterManagePage from '@/components/admin/PetSitterManagePage.vue'
 
 const routes = [
   {
@@ -71,6 +72,11 @@ const routes = [
     path: '/admin/pet-types',
     name: 'PetTypeManage',
     component: PetTypeManagePage
+  },
+  {
+    path: '/admin/pet-sitters',
+    component: PetSitterManagePage,
+    meta: { requiresAuth: true, requiresAdmin: true }
   }
 ];
 
