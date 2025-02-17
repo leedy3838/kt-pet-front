@@ -119,10 +119,10 @@
             회원 탈퇴
           </button>
           <button @click="goToReservationManage" class="primary-button">
-            예약 관리
+            나에게 온 예약 관리
           </button>
           <button @click="goToUserReservations" class="primary-button">
-            예약 목록 보기
+            내가 한 예약 관리
           </button>
         </div>
       </div>
