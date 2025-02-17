@@ -165,8 +165,8 @@ const requestReservation = async () => {
   }
 
   try {
-    const startDateTime = `${reservation.value.date}T${reservation.value.startTime}`
-    const endDateTime = `${reservation.value.date}T${reservation.value.endTime}`
+    const startDateTime = `${reservation.value.date}T${reservation.value.startTime}:00`
+    const endDateTime = `${reservation.value.date}T${reservation.value.endTime}:00`
 
     const response = await reservationApi.createReservation({
       petSitterId: Number(route.params.id),
