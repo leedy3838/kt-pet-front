@@ -6,18 +6,32 @@
         <div class="logo">
           <img class="logo-image" src="@/assets/logo.webp" alt="Logo" />
         </div>
-        <div class="nav-links">
-          <!-- 로그인하지 않은 경우 -->
-          <template v-if="!isLoggedIn">
-            <button @click="goToLogin" class="primary-button">로그인</button>
-            <button @click="goToRegister" class="secondary-button">회원가입</button>
-          </template>
-          <!-- 로그인한 경우 -->
-          <template v-else>
-            <span class="welcome-text">{{ userName }}님 환영합니다!</span>
-            <button @click="goToMypage" class="nav-button">마이페이지</button>
-            <button @click="handleLogout" class="nav-button">로그아웃</button>
-          </template>
+        <div class="nav-buttons">
+          <div v-if="isLoggedIn" class="user-menu">
+            <span class="welcome-text">{{ userName }}님 환영합니다</span>
+            <button v-if="isAdmin" @click="goToAdmin" class="admin-button">
+              <Settings class="button-icon" />
+              관리자
+            </button>
+            <button @click="goToMypage" class="secondary-button">
+              <User class="button-icon" />
+              마이페이지
+            </button>
+            <button @click="handleLogout" class="primary-button">
+              <LogOut class="button-icon" />
+              로그아웃
+            </button>
+          </div>
+          <div v-else class="auth-buttons">
+            <button @click="goToLogin" class="secondary-button">
+              <LogIn class="button-icon" />
+              로그인
+            </button>
+            <button @click="goToRegister" class="primary-button">
+              <UserPlus class="button-icon" />
+              회원가입
+            </button>
+          </div>
         </div>
       </div>
     </nav>
@@ -70,13 +84,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { User, ShoppingBag } from 'lucide-vue-next'
+import { User, ShoppingBag, Settings, LogIn, LogOut, UserPlus } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { userApi } from '@/services/api'
 
 const router = useRouter()
 const isLoggedIn = ref(false)
 const userName = ref('')
+const isAdmin = ref(false)
 
 const promotionItems = ref([
   { title: '홍보 자료', content: '펫 케어 서비스의 특별한 장점과 혜택을 소개합니다.' },
@@ -106,10 +121,14 @@ onMounted(async () => {
     if (response.data) {
       isLoggedIn.value = true
       userName.value = response.data.name
+      isAdmin.value = response.data.role === 'ADMIN'
     }
   } catch (error) {
     console.error('사용자 정보 조회 실패:', error)
-    isLoggedIn.value = false
+    if (error.code === 'JSON_AUTH_ERROR') {
+      isLoggedIn.value = false
+      router.push('/login')
+    }
   }
 })
 
@@ -133,20 +152,39 @@ const handleLogout = async () => {
     router.push('/login')
   } catch (error) {
     console.error('로그아웃 실패:', error)
+    if (error.code === 'JSON_AUTH_ERROR') {
+      router.push('/login')
+    }
   }
 }
 
 const goToService = (path) => {
   router.push(path)
 }
+
+const goToAdmin = () => {
+  router.push('/admin/pet-types')
+}
 </script>
 
 <style scoped>
+.user-menu, .auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.welcome-text {
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-right: var(--spacing-sm);
+}
+
 .hero-section {
-  background-color: var(--primary-color);
-  padding: 4rem 2rem;
+  background-color: var(--primary-light);
+  padding: var(--spacing-xl) var(--spacing-md);
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .hero-content {
@@ -157,7 +195,8 @@ const goToService = (path) => {
 .hero-content h1 {
   font-size: 2.5rem;
   color: var(--text-primary);
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
 }
 
 .hero-content p {
@@ -169,6 +208,14 @@ const goToService = (path) => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 3rem;
+  font-weight: 700;
 }
 
 .services-grid, .promotion-grid {
@@ -198,78 +245,84 @@ const goToService = (path) => {
   margin-bottom: 1rem;
 }
 
-.secondary-button {
-  background-color: var(--bg-secondary);
+.service-card h3 {
   color: var(--text-primary);
-  border: 2px solid var(--primary-color);
-  padding: 0.5rem 1.5rem;
-  border-radius: 0.5rem;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.service-description {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.promotion-card h3 {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.promotion-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.footer {
+  background-color: white;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+.admin-button {
+  background-color: #3b82f6;  /* 파란색 계열 */
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
   font-weight: 500;
+  border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-left: 1rem;
-}
-
-.secondary-button:hover {
-  background-color: var(--primary-color);
-  transform: translateY(-1px);
-}
-
-.welcome-text {
-  color: var(--text-primary);
-  font-weight: 500;
-  margin-right: 1rem;
-}
-
-.nav-links {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--spacing-xs);
 }
 
-.nav-button {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.admin-button:hover {
+  background-color: #2563eb;  /* 더 진한 파란색 */
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-.nav-button:hover {
-  background-color: var(--bg-primary);
-  transform: translateY(-1px);
-}
+@media (max-width: 768px) {
+  .user-menu, .auth-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: var(--spacing-sm);
+  }
 
-@media (max-width: 640px) {
+  .welcome-text {
+    margin-bottom: var(--spacing-sm);
+  }
+
   .hero-content h1 {
     font-size: 2rem;
   }
 
-  .services-grid, .promotion-grid {
+  .hero-content p {
+    font-size: 1.1rem;
+  }
+
+  .services-grid {
     grid-template-columns: 1fr;
   }
 
-  .nav-links {
-    flex-direction: column;
+  .primary-button, .secondary-button, .admin-button {
     width: 100%;
+    justify-content: center;
   }
-
-  .welcome-text {
-    margin-right: 0;
-    margin-bottom: 0.5rem;
-  }
-}
-
-.service-description {
-  margin-top: 0.5rem;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.service-card {
-  cursor: pointer;
 }
 </style>

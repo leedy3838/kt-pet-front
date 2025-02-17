@@ -9,6 +9,7 @@ import PetsitterProfilePage from '@/components/PetsitterProfilePage.vue'
 import PetsitterListPage from '@/components/PetsitterListPage.vue'
 import PetsitterDetailPage from '@/components/PetsitterDetailPage.vue'
 import ReservationManagePage from '@/components/ReservationManagePage.vue'
+import PetTypeManagePage from '@/components/admin/PetTypeManagePage.vue'
 
 const routes = [
   {
@@ -65,6 +66,11 @@ const routes = [
     path: '/reservations/manage',
     name: 'ReservationManage',
     component: ReservationManagePage
+  },
+  {
+    path: '/admin/pet-types',
+    name: 'PetTypeManage',
+    component: PetTypeManagePage
   }
 ];
 

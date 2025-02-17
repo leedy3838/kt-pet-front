@@ -35,7 +35,7 @@
               <Phone class="icon" />
               전화번호
             </label>
-            <p class="info-value">{{ user.phone }}</p>
+            <p class="info-value">{{ user.phoneNumber }}</p>
           </div>
         </div>
 
@@ -43,22 +43,39 @@
           <h2 class="section-title">펫시터 정보</h2>
           
           <div class="info-group">
-            <label class="info-label">활동 가능 지역</label>
+            <label class="info-label">
+              <MapPin class="icon" />
+              활동 가능 지역
+            </label>
             <p class="info-value">{{ petsitterProfile.region }}</p>
           </div>
 
           <div class="info-group">
-            <label class="info-label">활동 가능 시간</label>
-            <p class="info-value">{{ petsitterProfile.availableStartTime }} ~ {{ petsitterProfile.availableEndTime }}</p>
+            <label class="info-label">
+              <Clock class="icon" />
+              활동 가능 시간
+            </label>
+            <p class="info-value">
+              {{ petsitterProfile.availableStartTime }} ~ {{ petsitterProfile.availableEndTime }}
+            </p>
           </div>
 
           <div class="info-group">
             <label class="info-label">돌봄 가능한 반려동물</label>
-            <p class="info-value">{{ petsitterProfile.petTypes.join(', ') }}</p>
+            <div class="pet-types">
+              <span v-for="type in petsitterProfile.petTypes" 
+                    :key="type.id" 
+                    class="pet-type-tag">
+                {{ type.typeName || type.name || type }}
+              </span>
+            </div>
           </div>
 
           <div class="info-group">
-            <label class="info-label">시간당 요금</label>
+            <label class="info-label">
+              <Wallet class="icon" />
+              시간당 요금
+            </label>
             <p class="info-value">{{ petsitterProfile.price }}원</p>
           </div>
         </div>
@@ -118,7 +135,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { User, Mail, Phone, Lock, Edit } from 'lucide-vue-next';
+import { User, Mail, Phone, MapPin, Clock, Wallet, Edit, Lock } from 'lucide-vue-next';
 import { userApi, petsitterApi } from '@/services/api';
 
 const router = useRouter();
@@ -126,7 +143,7 @@ const router = useRouter();
 const user = ref({
   name: '',
   email: '',
-  phone: ''
+  phoneNumber: ''
 });
 
 const showChangePasswordModal = ref(false);
@@ -138,31 +155,42 @@ const petsitterStatus = ref({
 });
 
 const petsitterProfile = ref(null);
+const errorMessage = ref('');
 
-onMounted(async () => {
+const loadUserInfo = async () => {
   try {
-    const userResponse = await userApi.getUserInfo();
-    user.value = {
-      ...userResponse.data,
-      phone: userResponse.data.phoneNumber
-    };
+    const response = await userApi.getUserInfo()
+    user.value = response.data
+    await checkPetsitterStatus()
+  } catch (error) {
+    errorMessage.value = error.message || '사용자 정보를 불러오는데 실패했습니다.'
+    if (error.code === 'JSON_AUTH_ERROR') {
+      router.push('/login')
+    }
+  }
+}
 
-    const petsitterResponse = await petsitterApi.checkPetsitterStatus();
-    petsitterStatus.value = petsitterResponse.data;
-
+const checkPetsitterStatus = async () => {
+  try {
+    const statusResponse = await petsitterApi.checkStatus()
+    petsitterStatus.value = statusResponse.data
+    
     if (petsitterStatus.value.exists) {
-      const profileResponse = await petsitterApi.getMyProfile();
+      const profileResponse = await petsitterApi.getProfile()
+      console.log('Petsitter Profile:', profileResponse.data)
       petsitterProfile.value = {
         ...profileResponse.data,
-      };
+        petTypes: Array.isArray(profileResponse.data.petTypes) 
+          ? profileResponse.data.petTypes 
+          : [profileResponse.data.petTypes]
+      }
     }
   } catch (error) {
-    if (error.response?.status === 401) {
-      router.push('/login');
-    }
-    console.error('정보 조회 실패:', error);
+    console.error('펫시터 상태 확인 실패:', error)
   }
-});
+}
+
+onMounted(loadUserInfo);
 
 const goHome = () => {
   router.push('/');
@@ -310,5 +338,26 @@ const goToReservationManage = () => {
 .profile-section:last-child {
   border-bottom: none;
   padding-bottom: 0;
+}
+
+.pet-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.pet-type-tag {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--primary-color);
 }
 </style>

@@ -134,12 +134,10 @@ const fetchPetTypes = async () => {
 
 const fetchProfile = async () => {
   try {
-    // 프로필 존재 여부 확인
     const existsResponse = await petsitterApi.hasProfile()
     isNewProfile.value = !existsResponse.data
 
     if (!isNewProfile.value) {
-      // 기존 프로필이 있는 경우 자신의 프로필 조회
       const response = await petsitterApi.getProfile()
       const profileData = response.data
       console.log('조회된 프로필 데이터:', profileData)
@@ -154,10 +152,10 @@ const fetchProfile = async () => {
     }
   } catch (error) {
     console.error('프로필 조회 실패:', error)
-    if (error.response?.status === 401) {
+    errorMessage.value = error.message || '프로필 정보 조회에 실패했습니다.'
+    if (error.code === 'JSON_AUTH_ERROR') {
       router.push('/login')
     }
-    errorMessage.value = '프로필 정보 조회에 실패했습니다.'
   }
 }
 
@@ -176,7 +174,7 @@ const saveProfile = async () => {
       await petsitterApi.createProfile(profile.value)
       successMessage.value = '프로필이 성공적으로 등록되었습니다.'
     } else {
-      await petsitterApi.updateProfile(profile.value)  // id 제거
+      await petsitterApi.updateProfile(profile.value)
       successMessage.value = '프로필이 성공적으로 수정되었습니다.'
     }
     
@@ -186,9 +184,12 @@ const saveProfile = async () => {
     }, 3000)
   } catch (error) {
     console.error('프로필 저장 실패:', error)
-    errorMessage.value = isNewProfile.value 
+    errorMessage.value = error.message || (isNewProfile.value 
       ? '프로필 등록에 실패했습니다.' 
-      : '프로필 수정에 실패했습니다.'
+      : '프로필 수정에 실패했습니다.')
+    if (error.code === 'JSON_AUTH_ERROR') {
+      router.push('/login')
+    }
   }
 }
 

@@ -25,14 +25,37 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => {
     console.log('Response:', response.status, response.data);
+    const responseData = response.data;
+    
+    // ResponseTemplate 형식 검증
+    if (responseData && typeof responseData === 'object') {
+      if (!responseData.isSuccess) {
+        return Promise.reject({
+          code: responseData.code,
+          message: responseData.message || '요청이 실패했습니다.'
+        });
+      }
+      // results 필드가 있는 경우에만 데이터 추출
+      if ('results' in responseData) {
+        response.data = responseData.results;
+      }
+    }
     return response;
   },
   error => {
     console.error('Response Error:', error.response || error);
-    if (error.response) {
-      return Promise.reject(error.response.data);
+    if (error.response?.data) {
+      const errorData = error.response.data;
+      return Promise.reject({
+        code: errorData.code || 'UNKNOWN_ERROR',
+        message: errorData.message || '알 수 없는 오류가 발생했습니다.',
+        status: error.response.status
+      });
     }
-    return Promise.reject(error);
+    return Promise.reject({
+      code: 'NETWORK_ERROR',
+      message: '네트워크 오류가 발생했습니다.'
+    });
   }
 );
 
@@ -131,7 +154,7 @@ export const petsitterApi = {
   },
 
   // 펫시터 상태 확인
-  checkPetsitterStatus: () => {
+  checkStatus: () => {
     return api.get('/pet-sitters/status')
   },
 
@@ -146,6 +169,21 @@ export const petTypeApi = {
   // 반려동물 타입 목록 조회
   getAllPetTypes: () => {
     return api.get('/pet-types')
+  },
+
+  // 반려동물 타입 생성
+  createPetType: (data) => {
+    return api.post('/pet-types', data)
+  },
+
+  // 반려동물 타입 수정
+  updatePetType: (id, data) => {
+    return api.put(`/pet-types/${id}`, data)
+  },
+
+  // 반려동물 타입 삭제
+  deletePetType: (id) => {
+    return api.delete(`/pet-types/${id}`)
   }
 }
 
