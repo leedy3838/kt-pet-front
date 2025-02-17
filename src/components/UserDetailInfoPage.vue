@@ -121,6 +121,9 @@
           <button @click="goToReservationManage" class="primary-button">
             예약 관리
           </button>
+          <button @click="goToUserReservations" class="primary-button">
+            예약 목록 보기
+          </button>
         </div>
       </div>
     </main>
@@ -267,6 +270,10 @@ const goToPetsitterProfile = () => {
 const goToReservationManage = () => {
   router.push('/reservations/manage')
 }
+
+const goToUserReservations = () => {
+  router.push('/users/reservations');
+};
 
 const getPetsitterStatusText = (status) => {
   switch (status) {

@@ -215,6 +215,14 @@ export const reservationApi = {
         'Content-Type': 'application/json'
       }
     })
+  },
+
+  getUserReservations: () => {
+    return api.get('/reservations/my-reservations');
+  },
+
+  updateReservationDate: (reservationId, newDate) => {
+    return api.put(`/reservations/${reservationId}/update-date`, { newDate });
   }
 }
 

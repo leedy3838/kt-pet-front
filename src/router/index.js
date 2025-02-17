@@ -11,6 +11,7 @@ import PetsitterDetailPage from '@/components/PetsitterDetailPage.vue'
 import ReservationManagePage from '@/components/ReservationManagePage.vue'
 import PetTypeManagePage from '@/components/admin/PetTypeManagePage.vue'
 import PetSitterManagePage from '@/components/admin/PetSitterManagePage.vue'
+import UserReservationsPage from '../components/UserReservationsPage.vue'; // 사용자 예약 목록 페이지
 
 const routes = [
   {
@@ -82,6 +83,11 @@ const routes = [
     path: '/admin/pet-sitters',
     component: PetSitterManagePage,
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/users/reservations',
+    name: 'UserReservations',
+    component: UserReservationsPage
   }
 ];
 

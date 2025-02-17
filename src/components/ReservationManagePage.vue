@@ -55,8 +55,21 @@
             >
               거절
             </button>
+            <button 
+              @click="openDatePicker(reservation)" 
+              class="edit-button"
+            >
+              날짜 변경
+            </button>
           </div>
         </div>
+      </div>
+
+      <div v-if="showDatePicker" class="date-picker-modal">
+        <h3>새 예약 날짜 선택</h3>
+        <input type="date" v-model="newDate" />
+        <button @click="updateReservationDate">확인</button>
+        <button @click="showDatePicker = false">취소</button>
       </div>
     </main>
   </div>
@@ -71,6 +84,9 @@ const router = useRouter()
 const activeTab = ref('pending')
 const reservations = ref([])
 const loading = ref(false)
+const showDatePicker = ref(false)
+const newDate = ref('')
+const selectedReservation = ref(null)
 
 const fetchReservations = async () => {
   loading.value = true
@@ -121,6 +137,28 @@ const getStatusText = (status) => {
 
 const goHome = () => {
   router.push('/')
+}
+
+const openDatePicker = (reservation) => {
+  selectedReservation.value = reservation
+  showDatePicker.value = true
+}
+
+const updateReservationDate = async () => {
+  if (!newDate.value) {
+    alert('날짜를 선택해주세요.')
+    return
+  }
+  
+  try {
+    await reservationApi.updateReservationDate(selectedReservation.value.id, newDate.value)
+    alert('예약 날짜가 변경되었습니다.')
+    showDatePicker.value = false
+    await fetchReservations()
+  } catch (error) {
+    console.error('예약 날짜 변경 실패:', error)
+    alert('예약 날짜 변경에 실패했습니다.')
+  }
 }
 
 watch(activeTab, fetchReservations)
@@ -202,5 +240,18 @@ onMounted(fetchReservations)
   text-align: center;
   padding: 2rem;
   color: var(--text-secondary);
+}
+
+.date-picker-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
 }
 </style> 

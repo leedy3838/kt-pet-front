@@ -55,6 +55,15 @@
           <div class="reservation-form">
             <h3 class="form-title">예약하기</h3>
             <div class="form-group">
+              <label class="form-label">예약 날짜</label>
+              <input
+                v-model="reservation.date"
+                type="date"
+                class="form-input"
+              />
+            </div>
+
+            <div class="form-group">
               <label class="form-label">시작 시간</label>
               <input
                 v-model="reservation.startTime"
@@ -91,6 +100,8 @@
         </div>
       </div>
 
+      <!-- Remove or comment out the reservation requests section -->
+      <!--
       <div class="reservation-requests">
         <h2 class="section-title">예약 요청 목록</h2>
         <div v-if="reservations.length === 0" class="empty-state">
@@ -106,6 +117,7 @@
           </ul>
         </div>
       </div>
+      -->
     </main>
   </div>
 </template>
