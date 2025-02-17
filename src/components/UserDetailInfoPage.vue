@@ -80,6 +80,14 @@
           </div>
         </div>
 
+        <div v-if="petsitterStatus.exists" class="profile-section">
+          <h2 class="section-title">펫시터 상태</h2>
+          <div class="info-group">
+            <label class="info-label">현재 상태</label>
+            <p class="info-value">{{ getPetsitterStatusText(petsitterStatus.status) }}</p>
+          </div>
+        </div>
+
         <div class="button-group">
           <button @click="goToUpdate" class="primary-button">
             <Edit class="icon" />
@@ -151,7 +159,7 @@ const newPassword = ref('');
 const confirmPassword = ref('');
 const petsitterStatus = ref({
   exists: false,
-  isActivated: false
+  status: ''
 });
 
 const petsitterProfile = ref(null);
@@ -161,7 +169,7 @@ const loadUserInfo = async () => {
   try {
     const response = await userApi.getUserInfo()
     user.value = response.data
-    await checkPetsitterStatus()
+    await fetchPetsitterStatus()
   } catch (error) {
     errorMessage.value = error.message || '사용자 정보를 불러오는데 실패했습니다.'
     if (error.code === 'JSON_AUTH_ERROR') {
@@ -170,26 +178,25 @@ const loadUserInfo = async () => {
   }
 }
 
-const checkPetsitterStatus = async () => {
+const fetchPetsitterStatus = async () => {
   try {
-    const statusResponse = await petsitterApi.checkStatus()
+    const response = await petsitterApi.checkStatus()
     petsitterStatus.value = {
-      exists: statusResponse.data.exists,
-      isActivated: statusResponse.data.isActivated,
-      petSitterId: statusResponse.data.petSitterId
+      exists: response.data.exists,
+      status: response.data.status
     }
     
     if (petsitterStatus.value.exists) {
       const profileResponse = await petsitterApi.getProfile()
       petsitterProfile.value = {
         ...profileResponse.data,
-        region: statusResponse.data.region,
-        price: statusResponse.data.price,
-        availablePetTypes: statusResponse.data.availablePetTypes
+        region: response.data.region,
+        price: response.data.price,
+        availablePetTypes: response.data.availablePetTypes
       }
     }
   } catch (error) {
-    console.error('펫시터 상태 확인 실패:', error)
+    console.error('펫시터 상태 조회 실패:', error)
   }
 }
 
@@ -247,6 +254,14 @@ const goToPetsitterProfile = () => {
 
 const goToReservationManage = () => {
   router.push('/reservations/manage')
+}
+
+const getPetsitterStatusText = (status) => {
+  switch (status) {
+    case 'ACTIVATED': return '활성'
+    case 'REJECTED': return '거절됨'
+    default: return '승인 대기'
+  }
 }
 </script>
 

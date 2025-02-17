@@ -228,5 +228,10 @@ export const adminApi = {
   // 펫시터 신청 승인
   approvePetSitter: (petSitterId) => {
     return api.post(`/admin/pet-sitters/${petSitterId}/approve`)
+  },
+
+  // 펫시터 신청 거절
+  rejectPetSitter: (petSitterId) => {
+    return api.post(`/admin/pet-sitters/${petSitterId}/reject`)
   }
 } 

@@ -6,10 +6,16 @@
           <img class="logo-image" src="@/assets/logo.webp" alt="Logo" @click="goHome" style="cursor: pointer;" />
         </div>
         <h1 class="title">반려동물 타입 관리</h1>
-        <button @click="goHome" class="nav-button">
-          <Home class="icon" />
-          홈으로 이동
-        </button>
+        <div class="nav-buttons">
+          <button @click="goToPetSitters" class="secondary-button">
+            <Users class="button-icon" />
+            펫시터 관리
+          </button>
+          <button @click="goHome" class="primary-button">
+            <Home class="button-icon" />
+            홈으로 이동
+          </button>
+        </div>
       </div>
     </nav>
 
@@ -88,7 +94,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Edit, Trash, Save, X, Home } from 'lucide-vue-next'
+import { Edit, Trash, Save, X, Home, Users } from 'lucide-vue-next'
 import { petTypeApi } from '@/services/api'
 
 const router = useRouter()
@@ -183,6 +189,10 @@ const deletePetType = async (id) => {
 
 const goHome = () => {
   router.push('/')
+}
+
+const goToPetSitters = () => {
+  router.push('/admin/pet-sitters')
 }
 </script>
 

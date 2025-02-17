@@ -41,39 +41,35 @@
             <div class="petsitter-content">
               <div class="petsitter-header">
                 <h3>{{ petsitter.name }}</h3>
-                <span class="status-badge" :class="getStatusClass(petsitter.isActivated)">
-                  {{ petsitter.isActivated ? '활성' : '대기' }}
+                <span class="status-badge" :class="getStatusClass(petsitter.status)">
+                  {{ getStatusText(petsitter.status) }}
                 </span>
               </div>
               <div class="info-group">
-                <MapPin class="info-icon" />
-                <p class="region">활동지역: {{ petsitter.region || '미지정' }}</p>
-              </div>
-              <div class="info-group">
-                <Wallet class="info-icon" />
-                <p class="price">시간당 요금: {{ petsitter.price ? `${petsitter.price}원` : '미지정' }}</p>
-              </div>
-              <div class="pet-types-section">
-                <p class="pet-types-label">돌봄 가능한 반려동물:</p>
-                <div class="pet-types-container">
-                  <span v-for="type in petsitter.availablePetTypes" 
-                        :key="type"
-                        class="pet-type-tag">
-                    {{ type }}
-                  </span>
-                </div>
+                <Mail class="info-icon" />
+                <p class="email">이메일: {{ petsitter.email }}</p>
               </div>
             </div>
             <div class="card-actions">
-              <button v-if="!petsitter.isActivated"
+              <button v-if="petsitter.status === 'WAITING'"
                       @click="approvePetSitter(petsitter.petSitterId)" 
                       class="approve-button">
                 <Check class="button-icon" />
                 승인하기
               </button>
-              <span v-else class="approved-text">
+              <button v-if="petsitter.status === 'WAITING'"
+                      @click="rejectPetSitter(petsitter.petSitterId)"
+                      class="reject-button">
+                <X class="button-icon" />
+                거절하기
+              </button>
+              <span v-if="petsitter.status === 'ACTIVATED'" class="approved-text">
                 <CheckCircle class="approved-icon" />
                 승인완료
+              </span>
+              <span v-if="petsitter.status === 'REJECTED'" class="rejected-text">
+                <X class="rejected-icon" />
+                거절됨
               </span>
             </div>
           </div>
@@ -86,7 +82,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Home, Tag, Check, MapPin, Wallet, CheckCircle } from 'lucide-vue-next'
+import { Home, Tag, Check, X, Mail, CheckCircle } from 'lucide-vue-next'
 import { adminApi } from '@/services/api'
 
 const router = useRouter()
@@ -98,12 +94,11 @@ const loadPendingPetSitters = async () => {
   try {
     const response = await adminApi.getPendingPetSitters()
     pendingPetSitters.value = response.data.map(petsitter => ({
-      petSitterId: petsitter.petSitterId,
+      petSitterId: petsitter.id,
       name: petsitter.name || '이름 없음',
-      isActivated: petsitter.isActivated,
-      region: petsitter.region,
-      price: petsitter.price,
-      availablePetTypes: petsitter.availablePetTypes || []
+      email: petsitter.email,
+      status: petsitter.status,
+      isActivated: petsitter.isActivated
     }))
   } catch (error) {
     errorMessage.value = error.message || '펫시터 신청 목록을 불러오는데 실패했습니다.'
@@ -126,6 +121,23 @@ const approvePetSitter = async (petSitterId) => {
   }
 }
 
+const rejectPetSitter = async (petSitterId) => {
+  if (!confirm('정말 이 펫시터 신청을 거절하시겠습니까?')) {
+    return
+  }
+  
+  try {
+    await adminApi.rejectPetSitter(petSitterId)
+    successMessage.value = '펫시터 신청이 거절되었습니다.'
+    loadPendingPetSitters()
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
+  } catch (error) {
+    errorMessage.value = error.message || '펫시터 신청 거절에 실패했습니다.'
+  }
+}
+
 onMounted(loadPendingPetSitters)
 
 const goHome = () => {
@@ -136,8 +148,22 @@ const goToPetTypes = () => {
   router.push('/admin/pet-types')
 }
 
-const getStatusClass = (isActivated) => {
-  return isActivated ? 'status-active' : 'status-pending'
+const getStatusClass = (status) => {
+  switch (status) {
+    case 'ACTIVATED': return 'status-active'
+    case 'REJECTED': return 'status-rejected'
+    case 'WAITING': return 'status-pending'
+    default: return ''
+  }
+}
+
+const getStatusText = (status) => {
+  switch (status) {
+    case 'ACTIVATED': return '활성'
+    case 'REJECTED': return '거절됨'
+    case 'WAITING': return '대기'
+    default: return '상태 없음'
+  }
 }
 </script>
 
@@ -173,6 +199,11 @@ const getStatusClass = (isActivated) => {
 .status-pending {
   background-color: var(--warning-bg);
   color: var(--warning-text);
+}
+
+.status-rejected {
+  background-color: var(--error-bg);
+  color: var(--error-text);
 }
 
 .info-group {
@@ -276,6 +307,43 @@ const getStatusClass = (isActivated) => {
   box-shadow: var(--shadow-md);
 }
 
+.reject-button {
+  background-color: #EF4444;
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  justify-content: center;
+}
+
+.reject-button:hover {
+  background-color: #DC2626;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.rejected-text {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--error-text);
+  font-weight: 500;
+  justify-content: center;
+}
+
+.rejected-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--error-text);
+}
+
 @media (max-width: 640px) {
   .petsitter-grid {
     grid-template-columns: 1fr;
@@ -284,6 +352,11 @@ const getStatusClass = (isActivated) => {
   .nav-buttons {
     flex-direction: column;
     width: 100%;
+    gap: var(--spacing-sm);
+  }
+
+  .card-actions {
+    flex-direction: column;
     gap: var(--spacing-sm);
   }
 }

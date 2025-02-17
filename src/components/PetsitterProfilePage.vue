@@ -140,6 +140,11 @@ const fetchProfile = async () => {
     if (!isNewProfile.value) {
       const response = await petsitterApi.getProfile()
       const profileData = response.data
+      
+      if (profileData.status === 'REJECTED') {
+        isNewProfile.value = true
+        return
+      }
 
       profile.value = {
         location: profileData.region,
