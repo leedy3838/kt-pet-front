@@ -38,7 +38,6 @@
         <div v-for="reservation in reservations" :key="reservation.id" class="reservation-card">
           <div class="reservation-info">
             <h3>예약자: {{ reservation.userName }}</h3>
-            <p class="date">날짜: {{ formatDate(reservation.reservationDate) }}</p>
             <p class="time">시간: {{ reservation.startTime }} ~ {{ reservation.endTime }}</p>
             <p class="status">상태: {{ getStatusText(reservation.status) }}</p>
           </div>
@@ -108,10 +107,6 @@ const handleReject = async (reservationId) => {
     console.error('예약 거절 실패:', error)
     alert('예약 거절에 실패했습니다.')
   }
-}
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('ko-KR')
 }
 
 const getStatusText = (status) => {

@@ -118,7 +118,7 @@ export const petsitterApi = {
   // 펫시터 프로필 신규 등록
   createProfile: (profileData) => {
     return api.post('/pet-sitters/profile', {
-      region: profileData.location,
+      region: profileData.region,
       availableStartTime: profileData.availableStartTime,
       availableEndTime: profileData.availableEndTime,
       price: profileData.price,
@@ -129,7 +129,7 @@ export const petsitterApi = {
   // 펫시터 프로필 수정
   updateProfile: (profileData) => {
     return api.put('/pet-sitters/profile', {
-      region: profileData.location,
+      region: profileData.region,
       availableStartTime: profileData.availableStartTime,
       availableEndTime: profileData.availableEndTime,
       price: profileData.price,

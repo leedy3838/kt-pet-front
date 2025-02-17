@@ -97,13 +97,23 @@
             <Lock class="icon" />
             비밀번호 변경
           </button>
-          <button v-if="!petsitterStatus.exists" @click="applyPetsitter" class="primary-button">
+          <button v-if="!petsitterStatus.exists || petsitterStatus.status === 'REJECTED'" 
+                  @click="applyPetsitter" 
+                  class="primary-button">
             <User class="icon" />
             펫시터 신청
           </button>
-          <button v-else @click="goToPetsitterProfile" class="primary-button">
+          <button v-else-if="petsitterStatus.status === 'ACTIVATED'" 
+                  @click="goToPetsitterProfile" 
+                  class="primary-button">
             <User class="icon" />
             펫시터 프로필 수정
+          </button>
+          <button v-else-if="petsitterStatus.status === 'WAITING'" 
+                  class="secondary-button" 
+                  disabled>
+            <Clock class="icon" />
+            승인 대기 중
           </button>
           <button @click="handleWithdraw" class="delete-button">
             회원 탈퇴
@@ -159,7 +169,7 @@ const newPassword = ref('');
 const confirmPassword = ref('');
 const petsitterStatus = ref({
   exists: false,
-  status: ''
+  status: null
 });
 
 const petsitterProfile = ref(null);
@@ -181,18 +191,20 @@ const loadUserInfo = async () => {
 const fetchPetsitterStatus = async () => {
   try {
     const response = await petsitterApi.checkStatus()
+    const statusData = response.data
     petsitterStatus.value = {
-      exists: response.data.exists,
-      status: response.data.status
+      exists: statusData.id != null,
+      status: statusData.status
     }
     
-    if (petsitterStatus.value.exists) {
+    if (petsitterStatus.value.exists && petsitterStatus.value.status === 'ACTIVATED') {
       const profileResponse = await petsitterApi.getProfile()
       petsitterProfile.value = {
-        ...profileResponse.data,
-        region: response.data.region,
-        price: response.data.price,
-        availablePetTypes: response.data.availablePetTypes
+        region: profileResponse.data.region,
+        availableStartTime: profileResponse.data.availableStartTime,
+        availableEndTime: profileResponse.data.availableEndTime,
+        price: profileResponse.data.price,
+        availablePetTypes: profileResponse.data.petTypes
       }
     }
   } catch (error) {
@@ -241,7 +253,7 @@ const applyPetsitter = async () => {
   try {
     await petsitterApi.applyPetsitter()
     alert('펫시터 신청이 완료되었습니다!')
-    router.push('/petsitter/profile')
+    await fetchPetsitterStatus()
   } catch (error) {
     console.error('펫시터 신청 실패:', error)
     alert('펫시터 신청에 실패했습니다.')
@@ -249,7 +261,7 @@ const applyPetsitter = async () => {
 }
 
 const goToPetsitterProfile = () => {
-  router.push('/petsitter/profile');
+  router.push('/petsitter/profile/edit');
 };
 
 const goToReservationManage = () => {
@@ -377,5 +389,16 @@ const getPetsitterStatusText = (status) => {
   width: 1.25rem;
   height: 1.25rem;
   color: var(--primary-color);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
 }
 </style>

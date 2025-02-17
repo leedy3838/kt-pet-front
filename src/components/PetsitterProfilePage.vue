@@ -26,12 +26,13 @@
         
         <form @submit.prevent="saveProfile" class="profile-form">
           <div class="form-group">
-            <label class="form-label">활동 위치</label>
+            <label class="form-label">활동 가능 지역</label>
             <input
-              v-model="profile.location"
+              v-model="profile.region"
               type="text"
               class="form-input"
-              placeholder="활동 가능한 지역을 입력하세요"
+              placeholder="예: 서울시 강남구"
+              required
             />
           </div>
 
@@ -111,7 +112,7 @@ import { petsitterApi, petTypeApi } from '@/services/api'
 const router = useRouter()
 const isNewProfile = ref(true)
 const profile = ref({
-  location: '',
+  region: '',
   availableStartTime: '',
   availableEndTime: '',
   price: '',
@@ -147,7 +148,7 @@ const fetchProfile = async () => {
       }
 
       profile.value = {
-        location: profileData.region,
+        region: profileData.region,
         availableStartTime: profileData.availableStartTime,
         availableEndTime: profileData.availableEndTime,
         price: profileData.price,
@@ -175,10 +176,11 @@ onMounted(async () => {
 const saveProfile = async () => {
   try {
     const profileData = {
-      region: profile.value.location,
+      region: profile.value.region,
+      availableStartTime: profile.value.availableStartTime,
+      availableEndTime: profile.value.availableEndTime,
       price: parseInt(profile.value.price),
-      petTypeIds: profile.value.petTypeIds,
-      availablePetTypes: profile.value.petTypeIds.map(id => petTypes.value.find(type => type.id === id).name)
+      petTypeIds: profile.value.petTypeIds
     }
 
     if (isNewProfile.value) {
@@ -194,7 +196,11 @@ const saveProfile = async () => {
       router.push('/users/info')
     }, 2000)
   } catch (error) {
+    console.error('프로필 저장 실패:', error)
     errorMessage.value = error.message || '프로필 저장에 실패했습니다.'
+    if (error.code === 'JSON_AUTH_ERROR') {
+      router.push('/login')
+    }
   }
 }
 

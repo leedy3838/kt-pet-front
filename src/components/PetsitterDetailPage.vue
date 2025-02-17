@@ -55,16 +55,6 @@
           <div class="reservation-form">
             <h3 class="form-title">예약하기</h3>
             <div class="form-group">
-              <label class="form-label">예약 날짜</label>
-              <input
-                v-model="reservation.date"
-                type="date"
-                class="form-input"
-                :min="getTodayDate()"
-              />
-            </div>
-
-            <div class="form-group">
               <label class="form-label">시작 시간</label>
               <input
                 v-model="reservation.startTime"
@@ -100,6 +90,22 @@
           펫시터 정보를 불러오는 중...
         </div>
       </div>
+
+      <div class="reservation-requests">
+        <h2 class="section-title">예약 요청 목록</h2>
+        <div v-if="reservations.length === 0" class="empty-state">
+          <p>현재 예약 요청이 없습니다.</p>
+        </div>
+        <div v-else>
+          <ul>
+            <li v-for="reservation in reservations" :key="reservation.id" class="reservation-item">
+              <p>예약자: {{ reservation.userName }}</p>
+              <p>예약 시간: {{ new Date(reservation.startTime).toLocaleString() }} ~ {{ new Date(reservation.endTime).toLocaleString() }}</p>
+              <p>상태: {{ reservation.status }}</p>
+            </li>
+          </ul>
+        </div>
+      </div>
     </main>
   </div>
 </template>
@@ -118,6 +124,7 @@ const reservation = ref({
   startTime: '',
   endTime: ''
 })
+const reservations = ref([])
 
 const isValidReservation = computed(() => {
   return reservation.value.date && 
@@ -131,17 +138,13 @@ onMounted(async () => {
     const response = await petsitterApi.getProfile(route.params.id)
     console.log('펫시터 정보:', response.data)
     petsitter.value = response.data
+    await fetchReservations()
   } catch (error) {
     console.error('펫시터 정보 조회 실패:', error)
     alert('펫시터 정보를 불러오는데 실패했습니다.')
     router.push('/petsitters')
   }
 })
-
-const getTodayDate = () => {
-  const today = new Date()
-  return today.toISOString().split('T')[0]
-}
 
 const requestReservation = async () => {
   if (!isValidReservation.value) {
@@ -172,6 +175,16 @@ const requestReservation = async () => {
     } else {
       alert('예약 요청에 실패했습니다. 다시 시도해주세요.')
     }
+  }
+}
+
+const fetchReservations = async () => {
+  try {
+    const response = await reservationApi.getPendingReservations()
+    reservations.value = response.data
+  } catch (error) {
+    console.error('예약 요청 조회 실패:', error)
+    alert('예약 요청을 불러오는데 실패했습니다.')
   }
 }
 
@@ -320,5 +333,20 @@ button:disabled {
   padding: 0.5rem 1rem;
   border-radius: 2rem;
   font-size: 0.9rem;
+}
+
+.reservation-requests {
+  margin-top: 2rem;
+}
+
+.empty-state {
+  color: var(--text-secondary);
+}
+
+.reservation-item {
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
 }
 </style> 

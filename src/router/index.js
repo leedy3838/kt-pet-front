@@ -54,6 +54,11 @@ const routes = [
     component: PetsitterProfilePage
   },
   {
+    path: '/petsitter/profile/edit',
+    name: 'PetsitterProfileEdit',
+    component: PetsitterProfilePage
+  },
+  {
     path: '/petsitters',
     name: 'PetsitterList',
     component: PetsitterListPage
