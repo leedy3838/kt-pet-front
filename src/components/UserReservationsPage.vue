@@ -97,7 +97,7 @@ const onPayment = async (reservation) => {
     name: '펫시터 예약 결제', // Order name
     buyer_name: '홍길동', // Buyer name
     buyer_tel: '01012341234', // Buyer phone number
-    buyer_email: 'baroq8@gmail.com', // Buyer email
+    buyer_email: 'leedy3838@naver.com', // Buyer email
     buyer_addr: '신사동 661-16', // Buyer address
     buyer_postcode: '06018' // Buyer postal code
   };
@@ -114,6 +114,7 @@ const onPayment = async (reservation) => {
           reservationId: reservation.id
         });
         alert('결제 정보가 저장되었습니다.');
+        await fetchUserReservations(); // Refresh the reservation list after payment
       } catch (error) {
         console.error('결제 정보 저장 실패:', error);
         alert('결제 정보를 저장하는 데 실패했습니다.');
