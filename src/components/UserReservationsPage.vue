@@ -84,7 +84,7 @@ const cancelReservation = async (reservationId) => {
   }
 };
 
-const onPayment = (reservation) => {
+const onPayment = async (reservation) => {
   const { IMP } = window;
   IMP.init('imp36277135'); // Use the provided merchant identifier
 
@@ -101,18 +101,26 @@ const onPayment = (reservation) => {
     buyer_postcode: '06018' // Buyer postal code
   };
 
-  IMP.request_pay(data, callback);
-};
-
-const callback = (response) => {
-  const { success, error_msg } = response;
-  console.log(response);
-  if (success) {
-    alert('결제 성공');
-    // Optionally, you can update the reservation status here
-  } else {
-    alert(`결제 실패: ${error_msg}`);
-  }
+  IMP.request_pay(data, async (response) => {
+    const { success, error_msg, merchant_uid } = response;
+    console.log(response);
+    if (success) {
+      alert('결제 성공');
+      // Save the payment ID and reservation ID to the server
+      try {
+        await reservationApi.savePayment({
+          paymentId: merchant_uid, // Use the merchant_uid as the payment ID
+          reservationId: reservation.id
+        });
+        alert('결제 정보가 저장되었습니다.');
+      } catch (error) {
+        console.error('결제 정보 저장 실패:', error);
+        alert('결제 정보를 저장하는 데 실패했습니다.');
+      }
+    } else {
+      alert(`결제 실패: ${error_msg}`);
+    }
+  });
 };
 
 onMounted(fetchUserReservations);

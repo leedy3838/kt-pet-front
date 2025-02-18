@@ -223,6 +223,11 @@ export const reservationApi = {
 
   updateReservationDate: (reservationId, newDate) => {
     return api.put(`/reservations/${reservationId}/update-date`, { newDate });
+  },
+
+  // Save payment information
+  savePayment: (paymentData) => {
+    return api.post('/payments', paymentData); // Adjust the endpoint as necessary
   }
 }
 
