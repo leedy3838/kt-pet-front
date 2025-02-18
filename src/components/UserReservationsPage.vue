@@ -31,12 +31,13 @@
             </button>
             <p v-if="reservation.status === 'REJECTED'" class="rejected-text">예약이 거부되었습니다.</p>
             <button 
-              v-if="reservation.status === 'ACCEPTED'" 
+              v-if="reservation.status === 'ACCEPTED' && !reservation.isPayed" 
               @click="onPayment(reservation)" 
               class="payment-button"
             >
               결제하기
             </button>
+            <p v-if="reservation.isPayed" class="payment-status">결제가 완료되었습니다.</p>
           </div>
         </div>
       </div>
@@ -181,5 +182,9 @@ const goHome = () => {
 }
 .payment-button:hover {
   background-color: var(--primary-color-dark);
+}
+.payment-status {
+  color: var(--success-text);
+  margin-top: 0.5rem;
 }
 </style> 
